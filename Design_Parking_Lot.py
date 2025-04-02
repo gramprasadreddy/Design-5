@@ -1,30 +1,35 @@
-# park: O(log n)
-# leave: O(log n)
-# getOccupiedSpaces: O(n log n)
 import heapq
 
 
 class ParkingLot:
-    def __init__(self, totalSpaces: int):
-        self.totalSpaces = totalSpaces
-        self.availableSpaces = list(range(1, totalSpaces + 1)) 
-        heapq.heapify(self.availableSpaces)
-        self.occupiedSpaces = set()
-
+    def __init__(self, total_spaces: int):
+        self.total_spaces = total_spaces
+        self.available_spaces = [(i, i) for i in range(1, total_spaces + 1)]
+        heapq.heapify(self.available_spaces)
+        self.occupied_spaces = set()
+        self.token_map = {}
+    
     def park(self) -> int:
-        if not self.availableSpaces:
+        if not self.available_spaces:
             print("Parking Lot Full!")
             return -1
-        space = heapq.heappop(self.availableSpaces)
-        self.occupiedSpaces.add(space)
-        return space
-
-    def leave(self, space: int):
-        if space in self.occupiedSpaces:
-            self.occupiedSpaces.remove(space)
-            heapq.heappush(self.availableSpaces, space)
-        else:
-            print(f"Space {space} is already empty or invalid.")
-
-    def getOccupiedSpaces(self):
-        return sorted(self.occupiedSpaces)
+        
+        _, space = heapq.heappop(self.available_spaces)
+        token = space
+        self.occupied_spaces.add(space)
+        self.token_map[token] = space
+        print(f"Car parked at space {space}, Token: {token}")
+        return token
+    
+    def leave(self, token: int):
+        if token not in self.token_map:
+            print("Invalid Token!")
+            return
+        
+        space = self.token_map.pop(token)
+        self.occupied_spaces.remove(space)
+        heapq.heappush(self.available_spaces, (space, space))
+        print(f"Space {space} is now available.")
+    
+    def get_occupied_spaces(self):
+        return sorted(self.occupied_spaces)
